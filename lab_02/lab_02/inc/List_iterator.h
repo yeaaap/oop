@@ -10,7 +10,7 @@
 #include "List_base_iterator.h"
 
 
-template <Comparable T>
+template <Assignable_comparable T>
 class List;
 
 template <typename T>

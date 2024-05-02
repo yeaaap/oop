@@ -7,6 +7,12 @@
 
 
 
+template<typename T>
+List_base_iterator<T>::List_base_iterator()
+{
+    _ptr_cur.lock() = nullptr;
+}
+
 
 template<typename T>
 std::shared_ptr<typename List_base_iterator<T>::List_node> List_base_iterator<T>::get_node() const

@@ -12,7 +12,7 @@
 #include "List_iterator.h"
 
 
-template <Comparable T>
+template <Assignable_comparable T>
 class List;
 
 

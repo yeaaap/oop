@@ -10,7 +10,7 @@
 #include "errors.h"
 
 
-template <Comparable T>
+template <Assignable_comparable T>
 class List;
 
 template <typename T>
@@ -38,6 +38,7 @@ public:
     value_type get() const;
 
 protected:
+    List_base_iterator();
     std::shared_ptr<List_node> get_node() const;
     std::weak_ptr<List_node> _ptr_cur;
 };

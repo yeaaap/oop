@@ -78,11 +78,11 @@ int main()
     list5.insert(list5.cbegin() + 3, 555);
     std::cout << list5 << std::endl;
     std::cout << "Insert const in 3d List 1\n";
-    list5.insert(list5.cbegin() + 3, list1);
+    list5.insert(list5.cbegin() + 1, list1);
     std::cout << list5 << std::endl;
     std::cout << "Delete 1\n";
 
-    std::cout << list5.remove(1) << std::endl;
+    std::cout << list5.remove_all(1) << std::endl;
 
     std::cout << list5 << std::endl;
 

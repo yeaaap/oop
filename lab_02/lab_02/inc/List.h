@@ -12,7 +12,7 @@
 #include "concept.h"
 
 
-template <Comparable T>
+template <Assignable_comparable T>
 class List : public Base_container
 {
 public:
@@ -35,20 +35,25 @@ public:
     List(std::initializer_list<T> nodes);
 
     template <Iterator I>
+    requires Convertable_to<typename I::value_type, T>
     List(const I &begin, const I &end);
     template <Iterator I>
+    requires Convertable_to<typename I::value_type, T>
     List(const I &begin, size_type count);
 
     template <typename C>
     requires Container<C> && Convertable_to<typename C::value_type, T>
     explicit List(const C &container);
 
-
     List<T> &operator=(List<T> &&list) noexcept;
     template <typename U>
     requires Convertable_to<U, T>
     List<T> &operator=(const List<U> &list);
     List<T> &operator=(const List<T> &list);
+    List<T> &operator=(std::initializer_list<T> nodes);
+    template <typename C>
+    requires Container<C> && Convertable_to<typename C::value_type, T>
+    List<T> &operator=(const C &container);
 
     ~List() override = default;
 
@@ -67,6 +72,23 @@ public:
     requires Convertable_to<U, T>
     void push_back(const List<U> &list);
 
+    List<T> &operator+=(const T &data);
+    template <typename U>
+    requires Convertable_to<U, T>
+    List<T> &operator+=(const List<U> &list);
+
+    List<T> &merge(const T &data);
+    template <typename U>
+    requires Convertable_to<U, T>
+    List<T> &merge(const List<U> &list);
+    List<T> &merge(const List<T> &list);
+
+    List<T> operator+(const T &data);
+    template<typename U>
+    requires Convertable<U, T>
+    decltype(auto) operator+(const List<U> &list);
+    List<T> operator+(const List<T> &list);
+
     iterator insert(const const_iterator &iterator, const T &data);
     iterator insert(const iterator &iterator, const T &data);
 
@@ -80,39 +102,26 @@ public:
     requires Convertable_to<U, T>
     iterator insert(const iterator &iterator, const List<U> &list);
 
+    template <typename C>
+    requires Container<C> && Convertable_to<typename C::value_type, T>
+    iterator insert(const iterator &iterator, const C &container);
+    template <typename C>
+    requires Container<C> && Convertable_to<typename C::value_type, T>
+    iterator insert(const const_iterator &iterator, const C &container);
+
     value_type pop_back();
     value_type pop_front();
     value_type front();
     value_type back();
 
-    size_type remove(const iterator &iterator);
-    size_type remove(const T &data);
+    size_type remove_all(const iterator &iterator);
+    size_type remove_all(const T &data);
+
+    void remove(const T &data);
+    void remove(const iterator &iterator);
+    void remove(const iterator &start, const iterator &end);
 
     void reverse();
-
-    List<T> &merge(const T &data);
-    template <typename U>
-    requires Convertable_to<U, T>
-    List<T> &merge(const List<U> &list);
-    List<T> &merge(const List<T> &list);
-
-    List<T> &operator+=(const T &data);
-    template <typename U>
-    requires Convertable_to<U, T>
-    List<T> &operator+=(const List<U> &list);
-
-    List<T> operator+(const T &data);
-    template <typename U>
-    requires Convertable_to<U, T>
-    List<T> operator+(const List<U> &list);
-    List<T> operator+(const List<T> &list);
-
-    List<T> &add(const T &data);
-    template <typename U>
-    requires Convertable_to<U, T>
-    List<T> &add(const List<U> &list);
-    List<T> &add(const List<T> &list);
-
 
     bool operator==(const List<T> &list) const;
     bool is_equal(const List<T> &list) const;
@@ -165,8 +174,6 @@ private:
     std::shared_ptr<List_node> _head;
     std::shared_ptr<List_node> _tail;
 };
-
-
 
 
 template <typename T>
