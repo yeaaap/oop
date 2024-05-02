@@ -7,80 +7,108 @@
 
 
 #include <execution>
-#include <string>
+#include <cstdio>
+
+#define LEN_MESSAGE 1023
 
 
 class Base_error : public std::exception
 {
 public:
-    explicit Base_error(const std::string &file_name,
-                        const std::string &class_name,
-                        const std::string &time,
+    explicit Base_error(const char *file_name,
+                        const char *class_name,
+                        const char *time,
                         const int line,
-                        const std::string &type = "Unknown error!")
+                        const char *type = "Unknown error!")
     {
-        _message = "\nERROR: " + type + \
-                   "\nTime: " + time + \
-                   "\nFile: " + file_name + \
-                   "\nClass: " + class_name + \
-                   "\nLine: " + std::to_string(line);
+        snprintf(_message, LEN_MESSAGE, "\nERROR: %s \
+                   \nTime:  %s \
+                   \nFile:  %s \
+                   \nClass: %s \
+                   \nLine:  %d",
+                   type, time, file_name, class_name, line);
     }
 
 
     virtual const char* what() const noexcept override
     {
-        return _message.c_str();
+        return _message;
     }
 
 protected:
-    std::string _message;
+    char _message[LEN_MESSAGE + 1];
 };
 
 
-class Memory_error: public Base_error
+
+class List_base_error : public Base_error
 {
 public:
-    Memory_error(const std::string &file_name,
-                 const std::string &class_name,
-                 const std::string &time,
+    List_base_error(const char *file_name,
+                              const char *class_name,
+                              const char *time,
+                              const int line,
+                              const char *type = "Unknown error!")
+                              : Base_error(file_name, class_name, time, line, type) {};
+};
+
+
+class Memory_error: public List_base_error
+{
+public:
+    Memory_error(const char *file_name,
+                 const char *class_name,
+                 const char *time,
                  const int line,
-                 const std::string &type = "Memory allocation error!") : Base_error(
+                 const char *type = "Memory allocation error!") : List_base_error(
                          file_name, class_name, time, line, type){}
 };
 
 
-class Empty_list_error : public Base_error
+class Empty_list_error : public List_base_error
 {
 public:
-    Empty_list_error(const std::string &file_name,
-                 const std::string &class_name,
-                 const std::string &time,
-                 const int line,
-                 const std::string &type = "List is empty!") : Base_error(
-            file_name, class_name, time, line, type){}
-};
-
-
-class Iterator_error : public Base_error
-{
-public:
-    Iterator_error(const std::string &file_name,
-                     const std::string &class_name,
-                     const std::string &time,
+    Empty_list_error(const char *file_name,
+                     const char *class_name,
+                     const char *time,
                      const int line,
-                     const std::string &type = "Invalid iterator!") : Base_error(
+                     const char *type = "List is empty!") : List_base_error(
             file_name, class_name, time, line, type){}
 };
 
 
-class Pointer_error : public Base_error
+class Iterator_base_error : public Base_error
 {
 public:
-    Pointer_error(const std::string &file_name,
-                   const std::string &class_name,
-                   const std::string &time,
+    Iterator_base_error(const char *file_name,
+                     const char *class_name,
+                     const char *time,
+                     const int line,
+                     const char *type = "Iterator error!") : Base_error(
+            file_name, class_name, time, line, type){}
+};
+
+
+class Iterator_error : public Iterator_base_error
+{
+public:
+    Iterator_error(const char *file_name,
+                   const char *class_name,
+                   const char *time,
                    const int line,
-                   const std::string &type = "Invalid pointer!") : Base_error(
+                   const char *type = "Invalid iterator!") : Iterator_base_error(
+            file_name, class_name, time, line, type){}
+};
+
+
+class Pointer_error : public Iterator_base_error
+{
+public:
+    Pointer_error(const char *file_name,
+                  const char *class_name,
+                  const char *time,
+                  const int line,
+                  const char *type = "Invalid pointer!") : Iterator_base_error(
             file_name, class_name, time, line, type){}
 };
 

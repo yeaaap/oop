@@ -6,10 +6,9 @@
 #define LAB_02_LIST_ITERATOR_CONST_H
 
 
-#include "Base_iterator.h"
-#include "List_node.h"
 #include "errors.h"
 #include "concept.h"
+#include "List_base_iterator.h"
 
 
 template <Comparable T>
@@ -17,23 +16,22 @@ class List;
 
 
 template <typename T>
-class List_iterator_const : Base_iterator
+class List_iterator_const : public List_base_iterator<T>
 {
 public:
     using const_value_type = const T;
     using const_pointer = std::shared_ptr<const T>;
     using const_reference = const T&;
+    using iterator_category = std::forward_iterator_tag;
+    using difference_type = int;
+    using List_node = List<T>::List_node;
 
+public:
     List_iterator_const();
     List_iterator_const(const List_iterator_const<T> &iterator);
-    List_iterator_const(const std::shared_ptr<List_node<T>> &node);
-    List_iterator_const(const List<T> &list);
-
-    void next() override;
-    bool is_invalid() const override;
-
-    const_pointer operator->() const;
-    const_reference operator*() const;
+    explicit List_iterator_const(const std::shared_ptr<List_node> &node);
+    explicit List_iterator_const(const List<T> &list);
+    explicit List_iterator_const(const List_iterator<T> &iterator);
 
     List_iterator_const<T> &operator+=(const int &size);
     List_iterator_const<T> operator+(const int &size) const;
@@ -41,14 +39,8 @@ public:
     List_iterator_const<T> &operator++();
     List_iterator_const<T> operator++(int);
 
-    explicit operator bool() const;
-
-    const_value_type get() const;
-    std::shared_ptr<List_node<T>> get_node() const;
     bool operator!=(const List_iterator_const<T> &iterator) const;
     bool operator==(const List_iterator_const<T> &iterator) const;
-protected:
-    std::weak_ptr<List_node<T>> _ptr_cur;
 };
 
 

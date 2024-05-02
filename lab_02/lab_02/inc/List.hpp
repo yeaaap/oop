@@ -9,7 +9,7 @@
 #include "List.h"
 
 
-template<Comparable T>
+template <Comparable T>
 List<T>::List()
 {
     _size = 0;
@@ -18,7 +18,7 @@ List<T>::List()
 }
 
 
-template<Comparable T>
+template <Comparable T>
 List<T>::List(const List<T> &list)
 {
     _size = 0;
@@ -30,8 +30,18 @@ List<T>::List(const List<T> &list)
 }
 
 
+template <Comparable T>
+template <typename U>
+requires Convertable_to<U, T>
+List<T>::List(const List<U> &list)
+{
+    for (const auto &value : list)
+        push_back(T(value));
+}
+
+
 template<Comparable T>
-List<T>::List(T *const arr, const size_t &size)
+List<T>::List(const T *arr, size_t size)
 {
     if (!arr)
     {
@@ -52,7 +62,16 @@ List<T>::List(T *const arr, const size_t &size)
 
 
 template<Comparable T>
-List<T>::List(const std::initializer_list<T> &nodes)
+List<T>::List(List<T> &&list) noexcept
+{
+    _size = list._size;
+    _head = std::move(list._head);
+    _tail = std::move(list._tail);
+}
+
+
+template<Comparable T>
+List<T>::List(std::initializer_list<T> nodes)
 {
     _size = 0;
     _head = nullptr;
@@ -60,6 +79,52 @@ List<T>::List(const std::initializer_list<T> &nodes)
 
     for (auto node : nodes)
         push_back(node);
+}
+
+
+template<Comparable T>
+template<typename C>
+requires Container<C> && Convertable_to<typename C::value_type, T>
+List<T>::List(const C &container)
+{
+    for (const auto &value : container)
+        push_back(T(value));
+}
+
+
+template<Comparable T>
+template<Iterator I>
+List<T>::List(const I &begin, const I &end)
+{
+    for (auto it = begin; it != end; ++it)
+        push_back(*it);
+}
+
+
+template<Comparable T>
+template<Iterator I>
+List<T>::List(const I &begin, List::size_type count)
+{
+    size_type i = 0;
+    for (auto it = begin; i++ < count && it; ++it)
+        push_back(*it);
+}
+
+
+template <Comparable T>
+template <typename U>
+requires Convertable_to<U, T>
+List<T> &List<T>::operator=(const List<U> &list)
+{
+    clear();
+
+    _size = 0;
+    _head = nullptr;
+    _tail = nullptr;
+
+    push_back(list);
+
+    return *this;
 }
 
 
@@ -76,6 +141,19 @@ List<T> &List<T>::operator=(const List<T> &list)
 
     return *this;
 }
+
+
+template<Comparable T>
+List<T> &List<T>::operator=(List<T> &&list)
+ noexcept {
+    clear();
+    _size = 0;
+    _head = nullptr;
+    _tail = nullptr;
+    push_back(list);
+    return *this;
+}
+
 
 
 template<Comparable T>
@@ -100,7 +178,7 @@ List<T>::size_type List<T>::size()
 
 
 template<Comparable T>
-void List<T>::push_front(const std::shared_ptr<List_node<T>> &node)
+void List<T>::push_front(std::shared_ptr<List_node> &node)
 {
     node->set_next(_head);
     _head = node;
@@ -112,7 +190,7 @@ void List<T>::push_front(const std::shared_ptr<List_node<T>> &node)
 
 
 template<Comparable T>
-void List<T>::push_back(const std::shared_ptr<List_node<T>> &node)
+void List<T>::push_back(std::shared_ptr<List_node> &node)
 {
     if (!node)
     {
@@ -142,11 +220,11 @@ void List<T>::push_back(const std::shared_ptr<List_node<T>> &node)
 template<Comparable T>
 void List<T>::push_front(const T &data)
 {
-    std::shared_ptr<List_node<T>> tmp_node = nullptr;
+    std::shared_ptr<List_node> tmp_node = nullptr;
 
     try
     {
-        tmp_node = std::make_shared<List_node<T>>(data);
+        tmp_node = std::make_shared<List_node>(data);
     }
     catch (std::bad_alloc &error)
     {
@@ -164,11 +242,11 @@ void List<T>::push_front(const T &data)
 template<Comparable T>
 void List<T>::push_back(const T &data)
 {
-    std::shared_ptr<List_node<T>> tmp_node = nullptr;
+    std::shared_ptr<List_node> tmp_node = nullptr;
 
     try
     {
-        tmp_node = std::make_shared<List_node<T>>(data);
+        tmp_node = std::make_shared<List_node>(data);
     }
     catch (std::bad_alloc &error)
     {
@@ -184,16 +262,22 @@ void List<T>::push_back(const T &data)
 
 
 template<Comparable T>
-void List<T>::push_back(const List<T> &list)
+template <typename U>
+requires Convertable_to<U, T>
+void List<T>::push_back(const List<U> &list)
 {
-    for (const auto data: list)
+    List list_new(list);
+    for (const auto data: list_new)
         push_back(data);
 }
 
 
 template<Comparable T>
-void List<T>::push_front(const List<T> &list)
+template <typename U>
+requires Convertable_to<U, T>
+void List<T>::push_front(const List<U> &list)
 {
+    List list_new(list);
     insert(begin(), list);
 }
 
@@ -262,7 +346,7 @@ List<T>::value_type List<T>::pop_back()
     }
     else
     {
-        std::shared_ptr<List_node<T>> tmp_node = _head;
+        std::shared_ptr<List_node> tmp_node = _head;
         while (tmp_node->get_next() != _tail) tmp_node = tmp_node->get_next();
 
         tmp_node->set_next(nullptr);
@@ -278,8 +362,8 @@ List<T>::value_type List<T>::pop_back()
 template<Comparable T>
 List<T>::size_type List<T>::remove(const T &data)
 {
-    std::shared_ptr<List_node<T>> tmp_node = _head;
-    std::shared_ptr<List_node<T>> tmp_node_prev = nullptr;
+    std::shared_ptr<List_node> tmp_node = _head;
+    std::shared_ptr<List_node> tmp_node_prev = nullptr;
     size_t count = 0;
 
     if (!_size)
@@ -302,7 +386,7 @@ List<T>::size_type List<T>::remove(const T &data)
             }
             else
             {
-                std::shared_ptr<List_node<T>> tmp_ptr = tmp_node->get_next();
+                std::shared_ptr<List_node> tmp_ptr = tmp_node->get_next();
                 tmp_node_prev->set_next(tmp_ptr);
                 tmp_node->set_next(nullptr);
                 tmp_node = tmp_ptr;
@@ -321,6 +405,16 @@ List<T>::size_type List<T>::remove(const T &data)
 
 
 template<Comparable T>
+List<T>::size_type List<T>::remove(const List::iterator &iterator)
+{
+    size_t count = 0;
+    while (!iterator.is_invalid()) count += remove(iterator++);
+
+    return count;
+}
+
+
+template<Comparable T>
 List<T>::iterator List<T>::insert(const List::const_iterator &iterator, const T &data)
 {
     if (iterator.is_invalid())
@@ -332,11 +426,11 @@ List<T>::iterator List<T>::insert(const List::const_iterator &iterator, const T 
                              __LINE__);
     }
 
-    std::shared_ptr<List_node<T>> tmp_node = nullptr;
+    std::shared_ptr<List_node> tmp_node = nullptr;
 
     try
     {
-        tmp_node = std::make_shared<List_node<T>>(data);
+        tmp_node = std::make_shared<List_node>(data);
     }
     catch (std::bad_alloc &error)
     {
@@ -380,11 +474,11 @@ List<T>::iterator List<T>::insert(const List::iterator &iterator, const T &data)
                              __LINE__);
     }
 
-    std::shared_ptr<List_node<T>> tmp_node = nullptr;
+    std::shared_ptr<List_node> tmp_node = nullptr;
 
     try
     {
-        tmp_node = std::make_shared<List_node<T>>(data);
+        tmp_node = std::make_shared<List_node>(data);
     }
     catch (std::bad_alloc &error)
     {
@@ -409,8 +503,8 @@ List<T>::iterator List<T>::insert(const List::iterator &iterator, const T &data)
     List::iterator tmp_iterator = begin();
     while (tmp_iterator + 1 != iterator) tmp_iterator++;
 
-    tmp_node->set_next(tmp_iterator->get_next());
-    tmp_iterator->set_next(tmp_node);
+    tmp_node->set_next(tmp_iterator.get_node()->get_next());
+    tmp_iterator.get_node()->set_next(tmp_node);
     _size++;
 
     return List::iterator(tmp_node);
@@ -420,9 +514,9 @@ List<T>::iterator List<T>::insert(const List::iterator &iterator, const T &data)
 template<Comparable T>
 void List<T>::reverse()
 {
-    std::shared_ptr<List_node<T>> current= _head;
-    std::shared_ptr<List_node<T>> next = nullptr;
-    std::shared_ptr<List_node<T>> prev = nullptr;
+    std::shared_ptr<List_node> current= _head;
+    std::shared_ptr<List_node> next = nullptr;
+    std::shared_ptr<List_node> prev = nullptr;
 
     while (current)
     {
@@ -448,9 +542,21 @@ List<T> &List<T>::merge(const T &data)
 
 
 template<Comparable T>
+template<typename U>
+requires Convertable_to<U, T>
+List<T> &List<T>::merge(const List<U> &list)
+{
+    List list_new(list);
+    push_back(list_new);
+    return *this;
+}
+
+
+template<Comparable T>
 List<T> &List<T>::merge(const List<T> &list)
 {
-    push_back(list);
+    List list_new(list);
+    push_back(list_new);
     return *this;
 }
 
@@ -463,37 +569,69 @@ List<T> &List<T>::operator+=(const T &data)
 
 
 template<Comparable T>
-List<T> &List<T>::operator+=(const List<T> &list)
+template<typename U>
+requires Convertable_to<U, T>
+List<T> &List<T>::operator+=(const List<U> &list)
 {
-    return merge(list);
+    List list_new(list);
+    return merge(list_new);
+}
+
+
+
+template<Comparable T>
+List<T> List<T>::operator+(const T &data)
+{
+    push_back(data);
+    return List(cbegin());
 }
 
 
 template<Comparable T>
-List<T> &List<T>::operator+(const T &data)
+List<T> List<T>::operator+(const List<T> &list)
 {
-    return operator+=(data);
+    List<T> tmp;
+    tmp.push_back(*this);
+    tmp.push_back(list);
+    return tmp;
 }
 
 
 template<Comparable T>
-List<T> &List<T>::operator+(const List<T> &list)
+template<typename U>
+requires Convertable_to<U, T>
+List<T> List<T>::operator+(const List<U> &list)
 {
-    return operator+=(list);
+    List list_new(list);
+    List<T> tmp;
+    tmp.push_back(*this);
+    tmp.push_back(list_new);
+    return tmp;
 }
 
 
 template<Comparable T>
 List<T> &List<T>::add(const T &data)
 {
-    return operator+(data);
+    return merge(data);
+}
+
+
+template<Comparable T>
+template<typename U>
+requires Convertable_to<U, T>
+List<T> &List<T>::add(const List<U> &list)
+{
+    List<T> list_new(list);
+    return merge(list_new);
 }
 
 
 template<Comparable T>
 List<T> &List<T>::add(const List<T> &list)
 {
-    return operator+(list);
+    List<T> list_new(list);
+    return merge(list_new);
 }
 
 

@@ -5,87 +5,66 @@
 #ifndef LAB_02_LIST_NODE_HPP
 #define LAB_02_LIST_NODE_HPP
 
-#include "List_node.h"
+//con
+template <Comparable T>
+template <Constructable_empty U>
+List<T>::List_node::List_node() : _data(U()), _next(nullptr){}
 
 
-template <typename T>
-List_node<T>::List_node()
+template <Comparable T>
+List<T>::List_node::List_node(const T &data) : _data(data), _next(nullptr){}
+
+
+template <Comparable T>
+List<T>::List_node::List_node(const T &data, std::shared_ptr<List<T>::List_node> &next) : _data(data), _next(next){}
+
+
+template <Comparable T>
+List<T>::List_node::List_node(std::shared_ptr<List<T>::List_node> &node) : _data(node->_data), _next(node->_next){}
+
+
+template <Comparable T>
+List<T>::List_node::List_node(const List::List_node &node) : _data(node._data), _next(node._next){}
+
+
+template <Comparable T>
+List<T>::List_node::List_node(List::List_node &&node)  noexcept : _data(node._data), _next(node._next){}
+
+
+template <Comparable T>
+void List<T>::List_node::set_data(const T &data) { _data = data; }
+
+
+template <Comparable T>
+const T &List<T>::List_node::get_data() const { return _data; }
+
+
+template <Comparable T>
+void List<T>::List_node::set_next(const std::shared_ptr<List<T>::List_node> &node) { _next = node; }
+
+
+template <Comparable T>
+void List<T>::List_node::set_next(const List_node &node)
 {
-    _next = nullptr;
-}
-
-
-template <typename T>
-List_node<T>::List_node(const T &data)
-{
-    _next = nullptr;
-    _data = data;
-}
-
-
-template<typename T>
-List_node<T>::List_node(std::shared_ptr<List_node<T>> &node)
-{
-    _data = node._data;
-    _next = node._next;
-}
-
-
-template<typename T>
-void List_node<T>::set_data(const T &data)
-{
-    _data = data;
-}
-
-
-template<typename T>
-const T &List_node<T>::get_data() const
-{
-    return _data;
-}
-
-
-template<typename T>
-void List_node<T>::set_next(const std::shared_ptr<List_node<T>> &node)
-{
-    _next = node;
-}
-
-
-template<typename T>
-void List_node<T>::set_next(const List_node &node)
-{
-    std::shared_ptr<List_node<T>> ptr(node);
+    std::shared_ptr<List<T>::List_node> ptr(node);
     _next = ptr;
 }
 
 
-template<typename T>
-std::shared_ptr<List_node<T>> List_node<T>::get_next() const
-{
-    return _next;
-}
+template <Comparable T>
+std::shared_ptr<typename List<T>::List_node> List<T>::List_node::get_next() const { return _next; }
 
 
-template<typename T>
-bool List_node<T>::operator!=(const std::shared_ptr<List_node<T>> &node) const
-{
-    return this != node;
-}
+template <Comparable T>
+bool List<T>::List_node::operator!=(const std::shared_ptr<List<T>::List_node> &node) const { return this != node; }
 
 
-template<typename T>
-bool List_node<T>::operator==(const std::shared_ptr<List_node<T>> &node) const
-{
-    return this == node;
-}
+template <Comparable T>
+bool List<T>::List_node::operator==(const std::shared_ptr<List<T>::List_node> &node) const { return this == node; }
 
 
-template<typename T>
-T &List_node<T>::get_data()
-{
-    return _data;
-}
+template <Comparable T>
+T &List<T>::List_node::get_ref() { return _data; }
 
 
 #endif //LAB_02_LIST_NODE_HPP

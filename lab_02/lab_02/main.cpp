@@ -5,7 +5,7 @@
 int main()
 {
     std::cout << "List 1\n";
-    List<int> list1;
+    List<int> list1 = {1, 2 ,3};
     list1.push_back(1);
     list1.push_back(2);
     list1.push_back(3);
@@ -34,7 +34,6 @@ int main()
     List<int> list6(arr, 3);
     std::cout << list6 << std::endl;
     auto iter = list6.begin();
-    iter->set_data(11);
     std::cout << list6 << std::endl;
 
 
