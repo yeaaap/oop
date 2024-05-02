@@ -22,11 +22,8 @@ class List_iterator : public List_base_iterator<T>
 {
 public:
     using value_type = T;
-    using const_value_type = const T;
     using pointer = std::shared_ptr<T>;
-    using const_pointer = std::shared_ptr<const T>;
     using reference = T&;
-    using const_reference = const T&;
     using difference_type = int;
     using iterator_category = std::forward_iterator_tag;
     using List_node = List<T>::List_node;

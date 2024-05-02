@@ -17,9 +17,9 @@ template <typename T>
 class List_base_iterator
 {
 public:
-    using const_value_type = const T;
-    using const_pointer = std::shared_ptr<const T>;
-    using const_reference = const T&;
+    using value_type = const T;
+    using pointer = std::shared_ptr<const T>;
+    using reference = const T&;
     using iterator_category = std::forward_iterator_tag;
     using difference_type = int;
     using List_node = List<T>::List_node;
@@ -32,10 +32,10 @@ public:
     bool is_invalid() const;
     operator bool() const;
 
-    const_pointer operator->() const;
-    const_reference operator*() const;
+    pointer operator->() const;
+    reference operator*() const;
 
-    const_value_type get() const;
+    value_type get() const;
 
 protected:
     std::shared_ptr<List_node> get_node() const;

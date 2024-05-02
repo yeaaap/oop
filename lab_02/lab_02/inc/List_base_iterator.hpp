@@ -55,7 +55,7 @@ List_base_iterator<T>::operator bool() const
 
 
 template<typename T>
-List_base_iterator<T>::const_reference List_base_iterator<T>::operator*() const
+List_base_iterator<T>::reference List_base_iterator<T>::operator*() const
 {
     if (_ptr_cur.expired())
     {
@@ -71,7 +71,7 @@ List_base_iterator<T>::const_reference List_base_iterator<T>::operator*() const
 
 
 template<typename T>
-List_base_iterator<T>::const_pointer List_base_iterator<T>::operator->() const
+List_base_iterator<T>::pointer List_base_iterator<T>::operator->() const
 {
     if (_ptr_cur.expired())
     {
@@ -87,7 +87,7 @@ List_base_iterator<T>::const_pointer List_base_iterator<T>::operator->() const
 
 
 template<typename T>
-List_base_iterator<T>::const_value_type List_base_iterator<T>::get() const
+List_base_iterator<T>::value_type List_base_iterator<T>::get() const
 {
     if (_ptr_cur.expired())
     {
